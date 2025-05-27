@@ -27,7 +27,14 @@ cost = {}
 for res in resources:
     st.markdown(f"### {res}")
     current[res] = st.number_input(f"{res} - Current", value=0.0, key=f"{res}_current")
-    production[res] = st.number_input(f"{res} - Hourly Production", value=0.0, key=f"{res}_prod")
+    daily_total = st.number_input(f"{res} - Daily Production (optional)", value=0.0, key=f"{res}_daily")
+    
+    if daily_total > 0:
+        production[res] = daily_total / 24
+        st.markdown(f"➡️ Using {production[res]:.2f} per hour from daily total")
+    else:
+        production[res] = st.number_input(f"{res} - Hourly Production", value=0.0, key=f"{res}_prod")
+
     cost[res] = st.number_input(f"{res} - Cost to Buy Unit", value=0.0, key=f"{res}_cost")
 
 # Button to trigger the calculation
