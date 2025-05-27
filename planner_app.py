@@ -9,49 +9,54 @@ resources = ["Supplies", "Components", "Fuel", "Electronics", "Rare Material", "
 st.title("Game Resource Planner")
 st.markdown("*Only fill in applicable resources. Leave others blank if resource is enough.*")
 
-# Dictionaries to hold user input
-current = {}     # Current amount of each resource
-production = {}  # Hourly production rate
-cost = {}        # Cost needed to buy the unit
+# 🌍 Let user pick a timezone from a list of common zones
+st.markdown("### 🌍 Select Your Time Zone")
+timezones = [
+    "UTC", "Asia/Kuala_Lumpur", "Asia/Jakarta", "Asia/Tokyo",
+    "Europe/London", "Europe/Berlin", "America/New_York", "America/Los_Angeles"
+]
+selected_zone = st.selectbox("Choose your time zone:", timezones, index=timezones.index("Asia/Kuala_Lumpur"))
+your_zone = ZoneInfo(selected_zone)
 
-# Input fields for each resource
+# Dictionaries to hold user input
+current = {}
+production = {}
+cost = {}
+
+# Resource input fields
 for res in resources:
     st.markdown(f"### {res}")
     current[res] = st.number_input(f"{res} - Current", value=0.0, key=f"{res}_current")
     production[res] = st.number_input(f"{res} - Hourly Production", value=0.0, key=f"{res}_prod")
     cost[res] = st.number_input(f"{res} - Cost to Buy Unit", value=0.0, key=f"{res}_cost")
 
-# Button to trigger calculation
+# Button to trigger the calculation
 if st.button("Calculate Time"):
-    max_time = 0.0  # Will hold the longest time needed among all resources
+    max_time = 0.0  # Track the longest wait time among all needed resources
 
-    # Loop through each resource to compute needed time
     for res in resources:
-        if cost[res] > current[res]:  # If we need more than we have
+        if cost[res] > current[res]:
             needed = cost[res] - current[res]
             if production[res] > 0:
                 time_needed = needed / production[res]
                 max_time = max(max_time, time_needed)
             else:
-                max_time = float('inf')  # Cannot produce this resource at all
+                max_time = float('inf')  # Can't be produced at all
 
-    # Output result to the user
     if max_time == float('inf'):
         st.error("Some resources cannot be produced — infinite wait.")
     else:
-        # Convert float hours into hrs and mins
+        # Convert hours to readable format
         hrs = int(max_time)
         mins = int((max_time - hrs) * 60)
 
-        # Get estimated local time when the unit can be bought
-        your_zone = ZoneInfo("Asia/Kuala_Lumpur")
         eta = datetime.now(tz=your_zone) + timedelta(hours=max_time)
         eta_str = eta.strftime("%b %d, %I:%M %p")
 
-        # 🔍 Show current time info for clarity
+        # Show current time info
         current_time = datetime.now(tz=your_zone)
         current_time_str = current_time.strftime("%b %d, %I:%M %p")
         st.info(f"🕒 Current system time used: {current_time_str} ({your_zone.key})")
 
-        # ✅ Display the result
+        # Final result
         st.success(f"Time until unit affordable: {hrs}h {mins}m\nAvailable at: {eta_str}")
