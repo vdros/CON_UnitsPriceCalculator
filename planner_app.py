@@ -43,19 +43,15 @@ if st.button("Calculate Time"):
         hrs = int(max_time)
         mins = int((max_time - hrs) * 60)
 
-        # Convert float hours into hrs and mins
-hrs = int(max_time)
-mins = int((max_time - hrs) * 60)
+        # Get estimated local time when the unit can be bought
+        your_zone = ZoneInfo("Asia/Kuala_Lumpur")
+        eta = datetime.now(tz=your_zone) + timedelta(hours=max_time)
+        eta_str = eta.strftime("%b %d, %I:%M %p")
 
-# Get estimated local time when the unit can be bought
-your_zone = ZoneInfo("Asia/Kuala_Lumpur")
-eta = datetime.now(tz=your_zone) + timedelta(hours=max_time)
-eta_str = eta.strftime("%b %d, %I:%M %p")
+        # 🔍 Show current time info for clarity
+        current_time = datetime.now(tz=your_zone)
+        current_time_str = current_time.strftime("%b %d, %I:%M %p")
+        st.info(f"🕒 Current system time used: {current_time_str} ({your_zone.key})")
 
-# 🔍 Show current time info for clarity
-current_time = datetime.now(tz=your_zone)
-current_time_str = current_time.strftime("%b %d, %I:%M %p")
-st.info(f"🕒 Current system time used: {current_time_str} ({your_zone.key})")
-
-# ✅ Display the result
-st.success(f"Time until unit affordable: {hrs}h {mins}m\nAvailable at: {eta_str}")
+        # ✅ Display the result
+        st.success(f"Time until unit affordable: {hrs}h {mins}m\nAvailable at: {eta_str}")
